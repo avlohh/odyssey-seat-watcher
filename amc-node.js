@@ -264,6 +264,10 @@ async function getShowtimes(page, date) {
   return [...unique.values()];
 }
 
+function panelConfirmsImax70mm(panelText) {
+  return /imax\s*70\s*mm/i.test(String(panelText || ""));
+}
+
 async function getAvailableSeats(page, showtimeId) {
   const bookingUrl = `https://www.amctheatres.com/showtimes/${showtimeId}/seats`;
   await navigate(page, bookingUrl);
@@ -272,6 +276,24 @@ async function getAvailableSeats(page, showtimeId) {
   // That prevents a temporary AMC error page from clearing the alert state
   // and causing duplicate notifications on the next run.
   await page.waitForSelector("input[aria-label]", { timeout: 20_000 });
+
+  // The showtimes listing page groups every format (Dolby, standard, IMAX
+  // 70mm, ...) for a movie under one shared section, so a showtime link can
+  // be misclassified as IMAX 70mm there. This booking page states the real
+  // format for exactly this showtime, so it is the authoritative check.
+  const showtimePanelText = await page.evaluate(() => {
+    const bodyText = document.body.innerText || "";
+    const marker = bodyText.indexOf("Showtime Information");
+    return marker === -1 ? bodyText.slice(0, 600) : bodyText.slice(marker, marker + 600);
+  });
+
+  if (!panelConfirmsImax70mm(showtimePanelText)) {
+    const error = new Error(
+      "Booking page does not confirm IMAX 70mm for this showtime; treating as a non-match to avoid a false alert."
+    );
+    error.formatMismatch = true;
+    throw error;
+  }
 
   const available = await page.evaluate((targetSeatsByRow) => {
     const targets = Object.fromEntries(
@@ -670,7 +692,11 @@ async function runScan(page) {
         seats = await getAvailableSeats(page, showtime.id);
         encounteredShowtimes.add(showtime.id);
       } catch (error) {
-        log(`${date} ${showtime.time}: seat map failed: ${error.message}`);
+        if (error.formatMismatch) {
+          log(`${date} ${showtime.time}: skipped, not actually IMAX 70mm (${error.message})`);
+        } else {
+          log(`${date} ${showtime.time}: seat map failed: ${error.message}`);
+        }
         continue;
       }
 
@@ -825,6 +851,7 @@ module.exports = {
   isAllowedShowtime,
   loadStateFile,
   nycDateString,
+  panelConfirmsImax70mm,
   parseShowtimeMinutes,
   parseState,
   saveStateFile,

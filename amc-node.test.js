@@ -6,6 +6,7 @@ const assert = require("node:assert/strict");
 const {
   getNewSeats,
   isAllowedShowtime,
+  panelConfirmsImax70mm,
   parseShowtimeMinutes,
   parseState,
   sortSeats,
@@ -57,4 +58,20 @@ test("parses persisted deduplication state", () => {
 
   assert.deepEqual(state.availability["123"].seats, ["J21"]);
   assert.deepEqual(parseState("not JSON"), { version: 1, availability: {} });
+});
+
+test("confirms IMAX 70mm only when the booking page states it", () => {
+  assert.equal(
+    panelConfirmsImax70mm(
+      "Showtime Information\nThe Odyssey\nAMC LINCOLN SQUARE 13\nMONDAY, JULY 20, 2026\n6:00 PM\nIMAX 70MM\nRESERVED SEATING"
+    ),
+    true
+  );
+  assert.equal(
+    panelConfirmsImax70mm(
+      "Showtime Information\nThe Odyssey\nAMC LINCOLN SQUARE 13\nMONDAY, JULY 20, 2026\n11:00 AM\nDOLBY CINEMA AT AMC\nAMC SIGNATURE RECLINERS\nRESERVED SEATING"
+    ),
+    false
+  );
+  assert.equal(panelConfirmsImax70mm(""), false);
 });
