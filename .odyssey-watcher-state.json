@@ -1,4 +1,63 @@
 {
   "version": 1,
-  "availability": {}
+  "availability": {
+    "147667507": {
+      "movie": "The Odyssey",
+      "date": "2026-10-10",
+      "time": "7:00pm",
+      "seats": [
+        "K19",
+        "K20",
+        "M22",
+        "M24",
+        "M25"
+      ],
+      "missingScans": 0
+    },
+    "147667509": {
+      "movie": "The Odyssey",
+      "date": "2026-10-11",
+      "time": "7:00pm",
+      "seats": [
+        "L18"
+      ],
+      "missingScans": 0
+    },
+    "147667511": {
+      "movie": "The Odyssey",
+      "date": "2026-10-13",
+      "time": "7:00pm",
+      "seats": [
+        "L18",
+        "L19",
+        "M22",
+        "M23",
+        "M24",
+        "M25"
+      ],
+      "missingScans": 0
+    },
+    "147667514": {
+      "movie": "The Odyssey",
+      "date": "2026-10-14",
+      "time": "7:00pm",
+      "seats": [
+        "J18",
+        "J19",
+        "J25",
+        "J26",
+        "K18",
+        "K19",
+        "K26",
+        "L18",
+        "L19",
+        "L20",
+        "L23",
+        "L24",
+        "L25",
+        "L26"
+      ],
+      "missingScans": 0
+    }
+  }
 }
